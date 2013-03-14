@@ -20,11 +20,27 @@ class Rock(GameElement): # inheritence from GameElement class
     IMAGE = "Rock"
     SOLID = True # sets a class attibute of solid which is intrinsic property
 
+
+class Panda(GameElement):
+    IMAGE = "Panda"
+    SOLID = False
+
+    def interact(self, player):    
+        GAME_BOARD.draw_msg("Welcome to your doom!")
+
 class Tree(GameElement):
     IMAGE = "ShortTree"
+    SOLID = True
+
+    def interact(self, player):
+        if player.IMAGE == "Princess":
+            return
+        else:
+            Tree.SOLID = False
+            player.inventory2.append(self)
 
 class Character(GameElement):
-    IMAGE = "Horns" # attribute from GameElement
+    IMAGE = "Princess" # attribute from GameElement
     
     # instance method (like a function) that gives the class a character
     # returns a tuple
@@ -50,12 +66,40 @@ class Door(GameElement):
     SOLID = True
 
     def interact(self, player):
-        GAME_BOARD.del_el(player.x, player.y)
-        GAME_BOARD.set_el(5, 5, PLAYER)
+        #if key in player.inventory2:
+        if player.IMAGE == "Princess":
+            return
+        elif 'key' in player.inventory2:
+            GAME_BOARD.del_el(player.x, player.y)
+            GAME_BOARD.set_el(1, 3, player)
+        else: 
+            return
+#type(GAME_BOARD).__init__(GAME_BOARD, new_height, new_width)
+#type(GAME_BOARD) => Class Board
+#
 
+# class Voodoo(object):
+#     def method(self, x):
+#         pass
+
+# v = Voodoo()
+# v.method(5) # Voodoo.method(v, 5)
+
+class GrassBlock(GameElement):
+    IMAGE = "GrassBlock"
+
+class EndDoor(GameElement):
+    IMAGE = "DoorOpen"
+    SOLID = False
+
+    def interact(self, player):
+#        Board.__init__(GAME_BOARD, GAME_WIDTH, GAME_HEIGHT)        
+        grass = GrassBlock()
+        GAME_BOARD.register(grass)
+        GAME_BOARD.set_el(4, 3, grass)
 
 class Character2(GameElement):
-    IMAGE = "Panda" # new character when choose gem
+    IMAGE = "Horns" # new character when choose gem
 
     # instance method (like a function) that gives the class a character
     # returns a tuple
@@ -68,11 +112,19 @@ class Character2(GameElement):
             return (self.x-1, self.y)
         elif direction == "right":
             return (self.x+1, self.y)
-        return None
+        return Nonequit
 
     def __init__(self):
         GameElement.__init__(self)
         self.inventory2 = []
+
+class Orangegem(GameElement):
+    IMAGE = "OrangeGem"
+    SOLID = True
+
+class Greengem(GameElement):
+    IMAGE = "GreenGem"
+    SOLID = True
 
 
 class Gem(GameElement):
@@ -85,6 +137,7 @@ class Gem(GameElement):
         x_holder = player.x
         y_holder = player.y
         GAME_BOARD.del_el(player.x, player.y)
+
         global PLAYER
         PLAYER = Character2()
         GAME_BOARD.register(PLAYER)
@@ -92,6 +145,21 @@ class Gem(GameElement):
         print PLAYER
         PLAYER.inventory2.append(item)
         GAME_BOARD.draw_msg("Hey you! You just acquired a gem! You have %d items!" % (len(player.inventory)))
+        
+        door2 = EndDoor()   
+        GAME_BOARD.register(door2)
+        GAME_BOARD.set_el(2, 3, door2)
+
+class Key(GameElement):
+    IMAGE = "Key"
+    SOLID = False
+
+    def interact(self, player):
+        if player.IMAGE == "Princess":
+            Key.SOLID = True
+        else:
+            Key.SOLID = False
+            player.inventory2.append('key')
 
 ####   End class definitions    ####
 
@@ -103,22 +171,24 @@ def keyboard_handler():
     
     # keyboard commands that help define up, down, right and left
     if KEYBOARD[key.UP]:
-        GAME_BOARD.draw_msg("You pressed up")
+#        GAME_BOARD.draw_msg("You pressed up")
         direction = "up"
     if KEYBOARD[key.DOWN]:
-        GAME_BOARD.draw_msg("You pressed down")
+#        GAME_BOARD.draw_msg("You pressed down")
         direction = "down"
     if KEYBOARD[key.RIGHT]:
-        GAME_BOARD.draw_msg("You pressed right")
+#        GAME_BOARD.draw_msg("You pressed right")
         direction = "right"
     if KEYBOARD[key.LEFT]:
-        GAME_BOARD.draw_msg("You pressed left")
+#        GAME_BOARD.draw_msg("You pressed left")
         direction = "left"
     if KEYBOARD[key.SPACE]:
-        GAME_BOARD.erase_msg()
+#        GAME_BOARD.erase_msg()
+        pass
     
     # loop that feeds direction to next_pos instance method under character
     # allows keyboard to tell where to move the player
+    
     if direction:
         # var that takes the result next_pos which is a list of x,y
         next_location = PLAYER.next_pos(direction)
@@ -152,17 +222,28 @@ def keyboard_handler():
             GAME_BOARD.set_el(next_x, next_y, PLAYER)
         
         
+def secondWorld():
+    GAME_BOARD.draw_msg("Welcome to hell!")
+
 
 #initialize    
 def initialize():
     """Put game initialization code here"""
+    GAME_BOARD.draw_msg("Shall we play a game?")
+
     rock_positions = [
-            (5, 1),
+            (0, 4),
+            (1, 4),
+            (2, 4),
+            (3, 4),
+            (3, 0),
+            (3, 1),
             (3, 2),
-            (3, 2),
-            (4, 3),
-            (5, 8),
-            (7, 7)
+            (3, 3),
+            (6, 7),
+            (6, 6),
+            (7, 6),
+            (6, 8),
             ]
     
     #rock list    
@@ -177,34 +258,52 @@ def initialize():
 
     # example of how you can change the attribute for an instance of an object
     # in this case for the last rock, we can change the SOLID attribute to false
-    x = random.randint(0, 6)
-    rocks[x].SOLID = False
+#    x = random.randint(0, 6)
+#    rocks[x].SOLID = False
 
 
-    GAME_BOARD.draw_msg("Find the fake rock.")
+ #   GAME_BOARD.draw_msg("Find the fake rock.")
 
     # creates a gem on the board that is not solid as noted in its class above
     gem = Gem()
     GAME_BOARD.register(gem)
-    GAME_BOARD.set_el(3, 1, gem)
+    GAME_BOARD.set_el(6, 2, gem)
+
+    gem2 = Orangegem()
+    GAME_BOARD.register(gem2)
+    GAME_BOARD.set_el(6, 3, gem2)
+
+    gem3 = Greengem()
+    GAME_BOARD.register(gem3)
+    GAME_BOARD.set_el(5, 2, gem3)
 
     door = Door()
     GAME_BOARD.register(door)
-    GAME_BOARD.set_el(1, 4, door)
+    GAME_BOARD.set_el(7, 7, door)
 
     tree = Tree()
     GAME_BOARD.register(tree)
     for num in range(GAME_HEIGHT-1):
         GAME_BOARD.set_el(GAME_WIDTH-1, num, tree)
 
+    key = Key()
+    GAME_BOARD.register(key)
+    GAME_BOARD.set_el(2, 6, key)
+
     for rock in rocks:
         print rock
     
+    panda = Panda()
+    GAME_BOARD.register(panda)
+    GAME_BOARD.set_el(1,2, panda)
+    print panda
+
     # initialize player
     global PLAYER
     PLAYER = Character()
     GAME_BOARD.register(PLAYER)
-    GAME_BOARD.set_el(2,2, PLAYER)
+    GAME_BOARD.set_el(5,7, PLAYER)
     print PLAYER
+
 
     
