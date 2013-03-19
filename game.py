@@ -25,8 +25,9 @@ class Panda(GameElement):
     IMAGE = "Panda"
     SOLID = False
 
-    def interact(self, player):    
-        GAME_BOARD.draw_msg("Welcome to your doom!")
+    def interact(self, player):
+        PLAYER.inventory2.append(self)    
+        GAME_BOARD.draw_msg("You're almost there.")
 
 class Tree(GameElement):
     IMAGE = "ShortTree"
@@ -94,9 +95,10 @@ class EndDoor(GameElement):
 
     def interact(self, player):
 #        Board.__init__(GAME_BOARD, GAME_WIDTH, GAME_HEIGHT)        
-        grass = GrassBlock()
-        GAME_BOARD.register(grass)
-        GAME_BOARD.set_el(4, 3, grass)
+        if 'Panda' in PLAYER.inventory2:
+            grass = GrassBlock()
+            GAME_BOARD.register(grass)
+            GAME_BOARD.set_el(4, 3, grass)
 
 class Character2(GameElement):
     IMAGE = "Horns" # new character when choose gem
